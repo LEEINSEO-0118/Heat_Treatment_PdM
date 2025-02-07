@@ -1,22 +1,24 @@
 from fastapi import FastAPI
 from enum import Enum # 고유값 정의
+from pydantic import BaseModel
 
-class NickName(str, Enum):
-    toad = "인서"
-    rabbit = "시은"
-    pig = "인서2"
+name_db = [{'인서' : 'toad'}, {'시은' : 'rabbit'}, {'하준' : 'giant'}]
 
 app = FastAPI()
 
-@app.get("/nicknames/{nick_name}") # api 파라미터 설정
-async def get_name(nick_name : NickName): # 파라미터 타입 설정
-    if nick_name is NickName.toad:
-        return {"nick_name": nick_name, "message": "인서님 환영합니다."}
-    elif nick_name is NickName.rabbit:
-        return {"nick_name": nick_name, "message": "시은님 환영합니다."}
-    elif nick_name is NickName.pig:
-        return {"nick_name": nick_name, "message": "인서2님 환영합니다."}
-        
-# @app.get("/home_err/{name}")
-# def read_name_err(name:int):
-#     return {"name" : name}
+# get
+@app.get("/names/{name_id}") # api 파라미터 설정
+def get_name(name_id : str, skip : int = 0, limit : int = 10): # 파라미터 타입 설정
+    return name_db[skip:skip+limit] # skip부터 skip+limit 까지의 데이터만 가져오기
+  
+@app.get("/")
+def home_post():
+    return {"hello" : "GET"}
+
+class DataInput(BaseModel):
+    name:str
+
+# post
+@app.post("/")
+def home_post(data_request : DataInput):
+    return {"hello" : "POST", "msg" : data_request.name}
